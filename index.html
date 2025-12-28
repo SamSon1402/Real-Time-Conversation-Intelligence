@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modjo Real-Time Intelligence - Live Conversation Analysis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #06b6d4;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --success: #10b981;
+            --bg-dark: #0a0a0f;
+            --bg-card: #141419;
+            --bg-elevated: #1e1e26;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #2e2e3a;
+            --gradient-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --gradient-2: linear-gradient(135deg, #06b6d4 0%, #10b981 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(180deg, rgba(239, 68, 68, 0.1) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            animation: logoPulse 2s infinite;
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        }
+
+        .logo-text {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid var(--danger);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--danger);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .header-badges {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Main Layout */
+        .main {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1200px) {
+            .main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Card */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-body {
+            padding: 1.25rem;
+        }
+
+        /* Call Info */
+        .call-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            background: var(--bg-elevated);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .call-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--gradient-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .call-details h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .call-details p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .call-timer {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--danger);
+        }
+
+        /* Transcript */
+        .transcript-container {
+            height: 400px;
+            overflow-y: auto;
+            padding: 1rem 1.25rem;
+        }
+
+        .transcript-line {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: fadeInUp 0.3s forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .speaker-badge {
+            flex-shrink: 0;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .speaker-badge.rep {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary);
+        }
+
+        .speaker-badge.prospect {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .transcript-text {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
+
+        .transcript-text .highlight {
+            background: rgba(245, 158, 11, 0.2);
+            padding: 0.1rem 0.3rem;
+            border-radius: 3px;
+            color: var(--warning);
+        }
+
+        .transcript-text .competitor {
+            background: rgba(239, 68, 68, 0.2);
+            padding: 0.1rem 0.3rem;
+            border-radius: 3px;
+            color: var(--danger);
+        }
+
+        .transcript-text .positive {
+            background: rgba(16, 185, 129, 0.2);
+            padding: 0.1rem 0.3rem;
+            border-radius: 3px;
+            color: var(--success);
+        }
+
+        .transcript-time {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Audio Visualizer */
+        .audio-visualizer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            height: 40px;
+            padding: 0 1.25rem;
+            background: var(--bg-elevated);
+            border-top: 1px solid var(--border);
+        }
+
+        .audio-bar {
+            width: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+            animation: audioWave 0.5s ease-in-out infinite;
+        }
+
+        .audio-bar:nth-child(1) { animation-delay: 0s; height: 15px; }
+        .audio-bar:nth-child(2) { animation-delay: 0.1s; height: 25px; }
+        .audio-bar:nth-child(3) { animation-delay: 0.2s; height: 20px; }
+        .audio-bar:nth-child(4) { animation-delay: 0.3s; height: 30px; }
+        .audio-bar:nth-child(5) { animation-delay: 0.4s; height: 18px; }
+        .audio-bar:nth-child(6) { animation-delay: 0.5s; height: 25px; }
+        .audio-bar:nth-child(7) { animation-delay: 0.6s; height: 15px; }
+        .audio-bar:nth-child(8) { animation-delay: 0.7s; height: 22px; }
+
+        @keyframes audioWave {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.5); }
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .metric-card {
+            background: var(--bg-elevated);
+            border-radius: 8px;
+            padding: 0.875rem;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .metric-value.warning {
+            color: var(--warning);
+        }
+
+        .metric-value.danger {
+            color: var(--danger);
+        }
+
+        .metric-value.success {
+            color: var(--success);
+        }
+
+        .metric-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Right Panel */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* Live Insights */
+        .insight-item {
+            padding: 0.875rem;
+            background: var(--bg-elevated);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            border-left: 3px solid var(--primary);
+            animation: slideIn 0.3s forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .insight-item.warning {
+            border-left-color: var(--warning);
+        }
+
+        .insight-item.danger {
+            border-left-color: var(--danger);
+        }
+
+        .insight-item.success {
+            border-left-color: var(--success);
+        }
+
+        .insight-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-type {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary);
+        }
+
+        .insight-type.objection {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+        }
+
+        .insight-type.competitor {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+
+        .insight-type.buying-signal {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
+        .insight-time {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+
+        .insight-content {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Live Coach */
+        .coach-suggestion {
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 10px;
+            margin-bottom: 0.75rem;
+        }
+
+        .coach-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .coach-text {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        /* Entity Extraction */
+        .entities-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .entity-item {
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-dark);
+            border-radius: 6px;
+            font-size: 0.8rem;
+        }
+
+        .entity-label {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            margin-bottom: 0.15rem;
+        }
+
+        .entity-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Sentiment Chart */
+        .sentiment-track {
+            height: 60px;
+            background: var(--bg-dark);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            margin-top: 0.75rem;
+        }
+
+        .sentiment-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--border);
+        }
+
+        .sentiment-path {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .sentiment-point {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s;
+        }
+
+        .sentiment-point.positive {
+            background: var(--success);
+        }
+
+        .sentiment-point.neutral {
+            background: var(--text-muted);
+        }
+
+        .sentiment-point.negative {
+            background: var(--danger);
+        }
+
+        /* CRM Preview */
+        .crm-preview {
+            background: var(--bg-dark);
+            border-radius: 8px;
+            padding: 0.875rem;
+        }
+
+        .crm-field {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed var(--border);
+            font-size: 0.8rem;
+        }
+
+        .crm-field:last-child {
+            border-bottom: none;
+        }
+
+        .crm-field-label {
+            color: var(--text-muted);
+        }
+
+        .crm-field-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .crm-field-value.new {
+            color: var(--success);
+        }
+
+        .crm-field-value.new::after {
+            content: ' ✨';
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn {
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+
+        .btn-secondary {
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        /* Pipeline Stats */
+        .pipeline-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+
+        .pipeline-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .pipeline-bar {
+            flex: 1;
+            height: 6px;
+            background: var(--bg-dark);
+            border-radius: 3px;
+            margin: 0 1rem;
+            overflow: hidden;
+        }
+
+        .pipeline-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s;
+        }
+
+        .pipeline-fill.asr {
+            background: var(--success);
+        }
+
+        .pipeline-fill.nlu {
+            background: var(--primary);
+        }
+
+        .pipeline-value {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            min-width: 45px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🎙️</div>
+                <span class="logo-text">Modjo Real-Time Intelligence</span>
+            </div>
+            <div class="live-badge">
+                <div class="live-dot"></div>
+                LIVE CALL
+            </div>
+            <div class="header-badges">
+                <span class="badge">Whisper Streaming</span>
+                <span class="badge">pyannote.audio</span>
+                <span class="badge">Real-time NLU</span>
+                <span class="badge">&lt;2s Latency</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <!-- Left Panel - Transcript -->
+        <div>
+            <div class="card" style="margin-bottom: 1rem;">
+                <div class="call-info">
+                    <div class="call-avatar">👤</div>
+                    <div class="call-details">
+                        <h3>Discovery Call: DataFlow Systems</h3>
+                        <p>Pierre Martin → Sarah Chen (VP Sales Ops)</p>
+                    </div>
+                    <div class="call-timer" id="callTimer">00:00</div>
+                </div>
+
+                <div class="metrics-grid" style="padding: 1rem 1.25rem;">
+                    <div class="metric-card">
+                        <div class="metric-value" id="talkRatioRep">62%</div>
+                        <div class="metric-label">Rep Talk</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value success" id="talkRatioProspect">38%</div>
+                        <div class="metric-label">Prospect Talk</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="questionCount">4</div>
+                        <div class="metric-label">Questions</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value warning" id="fillerCount">2</div>
+                        <div class="metric-label">Fillers</div>
+                    </div>
+                </div>
+
+                <div class="transcript-container" id="transcript">
+                    <!-- Populated by JS -->
+                </div>
+
+                <div class="audio-visualizer">
+                    <div class="audio-bar"></div>
+                    <div class="audio-bar"></div>
+                    <div class="audio-bar"></div>
+                    <div class="audio-bar"></div>
+                    <div class="audio-bar"></div>
+                    <div class="audio-bar"></div>
+                    <div class="audio-bar"></div>
+                    <div class="audio-bar"></div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="startCall()">
+                        <span>▶️</span> Start Demo
+                    </button>
+                    <button class="btn btn-danger" onclick="stopCall()">
+                        <span>⏹️</span> End Call
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetCall()">
+                        <span>🔄</span> Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pipeline Performance -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">⚡ Pipeline Performance</h3>
+                </div>
+                <div class="card-body">
+                    <div class="pipeline-stat">
+                        <span class="pipeline-label">ASR Accuracy</span>
+                        <div class="pipeline-bar">
+                            <div class="pipeline-fill asr" style="width: 94%"></div>
+                        </div>
+                        <span class="pipeline-value">94.2%</span>
+                    </div>
+                    <div class="pipeline-stat">
+                        <span class="pipeline-label">Diarization (DER)</span>
+                        <div class="pipeline-bar">
+                            <div class="pipeline-fill asr" style="width: 89%"></div>
+                        </div>
+                        <span class="pipeline-value">10.8%</span>
+                    </div>
+                    <div class="pipeline-stat">
+                        <span class="pipeline-label">Entity Extraction</span>
+                        <div class="pipeline-bar">
+                            <div class="pipeline-fill nlu" style="width: 91%"></div>
+                        </div>
+                        <span class="pipeline-value">91.3%</span>
+                    </div>
+                    <div class="pipeline-stat">
+                        <span class="pipeline-label">End-to-End Latency</span>
+                        <div class="pipeline-bar">
+                            <div class="pipeline-fill nlu" style="width: 85%"></div>
+                        </div>
+                        <span class="pipeline-value">1.8s</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="right-panel">
+            <!-- Live Coach -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">🎯 Live Coach</h3>
+                </div>
+                <div class="card-body" id="coachPanel">
+                    <div class="coach-suggestion">
+                        <div class="coach-header">
+                            <span>💡</span> Suggestion
+                        </div>
+                        <div class="coach-text">
+                            Waiting for call to start...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Insights -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">🔍 Live Insights</h3>
+                    <span style="font-size: 0.7rem; color: var(--text-muted);" id="insightCount">0 detected</span>
+                </div>
+                <div class="card-body" id="insightsPanel" style="max-height: 250px; overflow-y: auto;">
+                    <div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 2rem;">
+                        Insights will appear here during the call...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Extracted Entities -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">📋 Extracted Entities</h3>
+                </div>
+                <div class="card-body">
+                    <div class="entities-grid" id="entitiesGrid">
+                        <div class="entity-item">
+                            <div class="entity-label">Budget</div>
+                            <div class="entity-value">—</div>
+                        </div>
+                        <div class="entity-item">
+                            <div class="entity-label">Timeline</div>
+                            <div class="entity-value">—</div>
+                        </div>
+                        <div class="entity-item">
+                            <div class="entity-label">Decision Maker</div>
+                            <div class="entity-value">—</div>
+                        </div>
+                        <div class="entity-item">
+                            <div class="entity-label">Competitors</div>
+                            <div class="entity-value">—</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1rem;">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">Sentiment Trend</div>
+                        <div class="sentiment-track" id="sentimentTrack">
+                            <div class="sentiment-line"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CRM Auto-Fill Preview -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">💾 CRM Auto-Fill Preview</h3>
+                </div>
+                <div class="card-body">
+                    <div class="crm-preview" id="crmPreview">
+                        <div class="crm-field">
+                            <span class="crm-field-label">Call Summary</span>
+                            <span class="crm-field-value">Pending...</span>
+                        </div>
+                        <div class="crm-field">
+                            <span class="crm-field-label">Next Steps</span>
+                            <span class="crm-field-value">Pending...</span>
+                        </div>
+                        <div class="crm-field">
+                            <span class="crm-field-label">Objections</span>
+                            <span class="crm-field-value">Pending...</span>
+                        </div>
+                        <div class="crm-field">
+                            <span class="crm-field-label">MEDDIC Score</span>
+                            <span class="crm-field-value">—/6</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Conversation script
+        const conversationScript = [
+            { speaker: 'rep', text: "Bonjour Sarah, merci d'avoir pris le temps de discuter avec nous aujourd'hui. Comment allez-vous ?", time: '00:05' },
+            { speaker: 'prospect', text: "Bonjour Pierre ! Très bien merci. Je suis curieuse d'en savoir plus sur votre solution.", time: '00:12' },
+            { speaker: 'rep', text: "Parfait ! Avant de commencer, pourriez-vous me parler un peu de vos défis actuels en termes de performance commerciale ?", time: '00:20', insight: { type: 'question', text: 'Discovery question asked' } },
+            { speaker: 'prospect', text: "Bien sûr. Notre principal problème c'est que nos commerciaux passent trop de temps sur l'administratif. On estime qu'ils perdent environ <span class='highlight'>30% de leur temps</span> à remplir le CRM.", time: '00:35', entity: { key: 'pain_point', value: '30% temps admin' } },
+            { speaker: 'rep', text: "Je comprends tout à fait. C'est un problème très courant. Quel impact cela a-t-il sur vos résultats ?", time: '00:48' },
+            { speaker: 'prospect', text: "Eh bien, on pense que ça nous coûte environ <span class='highlight'>200 000 euros</span> par an en productivité perdue.", time: '01:02', entity: { key: 'budget', value: '€200K impact' } },
+            { speaker: 'rep', text: "C'est significatif. Et avez-vous déjà regardé d'autres solutions pour résoudre ce problème ?", time: '01:15' },
+            { speaker: 'prospect', text: "Oui, on a eu une démo de <span class='competitor'>Gong</span> le mois dernier. Leur produit est intéressant mais un peu cher pour nous.", time: '01:28', insight: { type: 'competitor', text: 'Gong mentioned - price concern' }, entity: { key: 'competitor', value: 'Gong' } },
+            { speaker: 'rep', text: "Je vois. Quel est votre budget approximatif pour ce type de solution ?", time: '01:42' },
+            { speaker: 'prospect', text: "On a validé un budget de <span class='highlight'>50 000 euros</span> pour cette année, avec possibilité d'augmenter si les résultats sont là.", time: '01:55', entity: { key: 'budget_confirmed', value: '€50K' }, insight: { type: 'buying-signal', text: 'Budget confirmed: €50K' } },
+            { speaker: 'rep', text: "C'est une bonne nouvelle. Et qui d'autre sera impliqué dans la décision finale ?", time: '02:08' },
+            { speaker: 'prospect', text: "Notre CFO <span class='highlight'>Marc Dubois</span> devra valider, et mon équipe de 15 commerciaux testera la solution.", time: '02:22', entity: { key: 'decision_maker', value: 'CFO Marc Dubois' }, insight: { type: 'entity', text: 'Decision maker identified: CFO' } },
+            { speaker: 'rep', text: "Parfait. Et idéalement, quand souhaiteriez-vous avoir la solution en place ?", time: '02:35' },
+            { speaker: 'prospect', text: "On aimerait démarrer <span class='highlight'>début Q2</span>, donc d'ici mars si possible. C'est réaliste ?", time: '02:48', entity: { key: 'timeline', value: 'Q2 Start' }, insight: { type: 'buying-signal', text: 'Timeline confirmed: Q2' } },
+            { speaker: 'rep', text: "Absolument, c'est tout à fait faisable. Laissez-moi vous montrer comment Modjo peut réduire le temps admin de vos équipes de <span class='positive'>70%</span>.", time: '03:05' }
+        ];
+
+        const coachSuggestions = [
+            { trigger: 2, text: "Good start! Ask about their current tools and pain points." },
+            { trigger: 5, text: "Great discovery! Now quantify the impact on revenue." },
+            { trigger: 7, text: "⚠️ Competitor mentioned! Focus on European compliance and lower TCO." },
+            { trigger: 9, text: "🎯 Budget confirmed! Move to value demonstration." },
+            { trigger: 11, text: "Decision maker identified. Plan for CFO-level ROI presentation." },
+            { trigger: 14, text: "✅ Strong buying signals! Summarize value and propose next steps." }
+        ];
+
+        let currentIndex = 0;
+        let callInterval = null;
+        let timerInterval = null;
+        let seconds = 0;
+        let insightCount = 0;
+        let sentimentPoints = [];
+
+        function startCall() {
+            if (callInterval) return;
+            
+            currentIndex = 0;
+            seconds = 0;
+            insightCount = 0;
+            sentimentPoints = [];
+            
+            document.getElementById('transcript').innerHTML = '';
+            document.getElementById('insightsPanel').innerHTML = '';
+            document.getElementById('insightCount').textContent = '0 detected';
+            
+            resetEntities();
+            resetCRM();
+
+            // Start timer
+            timerInterval = setInterval(() => {
+                seconds++;
+                const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const secs = (seconds % 60).toString().padStart(2, '0');
+                document.getElementById('callTimer').textContent = `${mins}:${secs}`;
+            }, 1000);
+
+            // Start conversation
+            callInterval = setInterval(() => {
+                if (currentIndex < conversationScript.length) {
+                    addTranscriptLine(conversationScript[currentIndex]);
+                    
+                    // Check for coach suggestions
+                    const suggestion = coachSuggestions.find(s => s.trigger === currentIndex);
+                    if (suggestion) {
+                        updateCoach(suggestion.text);
+                    }
+
+                    // Add sentiment point
+                    const sentiment = conversationScript[currentIndex].insight?.type === 'buying-signal' ? 'positive' : 
+                                    conversationScript[currentIndex].insight?.type === 'competitor' ? 'negative' : 'neutral';
+                    addSentimentPoint(sentiment);
+
+                    currentIndex++;
+                } else {
+                    stopCall();
+                    finalizeCall();
+                }
+            }, 3000);
+        }
+
+        function stopCall() {
+            if (callInterval) {
+                clearInterval(callInterval);
+                callInterval = null;
+            }
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function resetCall() {
+            stopCall();
+            currentIndex = 0;
+            seconds = 0;
+            insightCount = 0;
+            document.getElementById('callTimer').textContent = '00:00';
+            document.getElementById('transcript').innerHTML = '';
+            document.getElementById('insightsPanel').innerHTML = `
+                <div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 2rem;">
+                    Insights will appear here during the call...
+                </div>
+            `;
+            document.getElementById('insightCount').textContent = '0 detected';
+            document.getElementById('coachPanel').innerHTML = `
+                <div class="coach-suggestion">
+                    <div class="coach-header">
+                        <span>💡</span> Suggestion
+                    </div>
+                    <div class="coach-text">
+                        Waiting for call to start...
+                    </div>
+                </div>
+            `;
+            resetEntities();
+            resetCRM();
+            document.getElementById('sentimentTrack').innerHTML = '<div class="sentiment-line"></div>';
+        }
+
+        function addTranscriptLine(line) {
+            const container = document.getElementById('transcript');
+            const html = `
+                <div class="transcript-line">
+                    <span class="speaker-badge ${line.speaker}">${line.speaker === 'rep' ? 'Pierre' : 'Sarah'}</span>
+                    <div>
+                        <div class="transcript-text">${line.text}</div>
+                        <div class="transcript-time">${line.time}</div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+            container.scrollTop = container.scrollHeight;
+
+            // Add insight if present
+            if (line.insight) {
+                addInsight(line.insight, line.time);
+            }
+
+            // Update entity if present
+            if (line.entity) {
+                updateEntity(line.entity.key, line.entity.value);
+            }
+        }
+
+        function addInsight(insight, time) {
+            insightCount++;
+            document.getElementById('insightCount').textContent = `${insightCount} detected`;
+
+            const container = document.getElementById('insightsPanel');
+            if (insightCount === 1) {
+                container.innerHTML = '';
+            }
+
+            const typeClass = insight.type === 'competitor' ? 'danger' : 
+                            insight.type === 'buying-signal' ? 'success' : 
+                            insight.type === 'objection' ? 'warning' : '';
+
+            const html = `
+                <div class="insight-item ${typeClass}">
+                    <div class="insight-header">
+                        <span class="insight-type ${insight.type}">${insight.type.replace('-', ' ')}</span>
+                        <span class="insight-time">${time}</span>
+                    </div>
+                    <div class="insight-content">${insight.text}</div>
+                </div>
+            `;
+            container.insertAdjacentHTML('afterbegin', html);
+        }
+
+        function updateCoach(text) {
+            const panel = document.getElementById('coachPanel');
+            panel.innerHTML = `
+                <div class="coach-suggestion">
+                    <div class="coach-header">
+                        <span>💡</span> Live Suggestion
+                    </div>
+                    <div class="coach-text">${text}</div>
+                </div>
+            `;
+        }
+
+        function updateEntity(key, value) {
+            const grid = document.getElementById('entitiesGrid');
+            const mapping = {
+                'budget': 0,
+                'budget_confirmed': 0,
+                'timeline': 1,
+                'decision_maker': 2,
+                'competitor': 3
+            };
+
+            if (mapping[key] !== undefined) {
+                const item = grid.children[mapping[key]];
+                item.querySelector('.entity-value').textContent = value;
+                item.querySelector('.entity-value').style.color = 'var(--success)';
+            }
+        }
+
+        function resetEntities() {
+            const grid = document.getElementById('entitiesGrid');
+            grid.innerHTML = `
+                <div class="entity-item">
+                    <div class="entity-label">Budget</div>
+                    <div class="entity-value">—</div>
+                </div>
+                <div class="entity-item">
+                    <div class="entity-label">Timeline</div>
+                    <div class="entity-value">—</div>
+                </div>
+                <div class="entity-item">
+                    <div class="entity-label">Decision Maker</div>
+                    <div class="entity-value">—</div>
+                </div>
+                <div class="entity-item">
+                    <div class="entity-label">Competitors</div>
+                    <div class="entity-value">—</div>
+                </div>
+            `;
+        }
+
+        function resetCRM() {
+            document.getElementById('crmPreview').innerHTML = `
+                <div class="crm-field">
+                    <span class="crm-field-label">Call Summary</span>
+                    <span class="crm-field-value">Pending...</span>
+                </div>
+                <div class="crm-field">
+                    <span class="crm-field-label">Next Steps</span>
+                    <span class="crm-field-value">Pending...</span>
+                </div>
+                <div class="crm-field">
+                    <span class="crm-field-label">Objections</span>
+                    <span class="crm-field-value">Pending...</span>
+                </div>
+                <div class="crm-field">
+                    <span class="crm-field-label">MEDDIC Score</span>
+                    <span class="crm-field-value">—/6</span>
+                </div>
+            `;
+        }
+
+        function addSentimentPoint(sentiment) {
+            const track = document.getElementById('sentimentTrack');
+            const position = (sentimentPoints.length / 15) * 100;
+            const yPosition = sentiment === 'positive' ? 20 : sentiment === 'negative' ? 80 : 50;
+            
+            const point = document.createElement('div');
+            point.className = `sentiment-point ${sentiment}`;
+            point.style.left = `${Math.min(position, 95)}%`;
+            point.style.top = `${yPosition}%`;
+            track.appendChild(point);
+            
+            sentimentPoints.push({ sentiment, position });
+        }
+
+        function finalizeCall() {
+            // Update CRM preview with final data
+            document.getElementById('crmPreview').innerHTML = `
+                <div class="crm-field">
+                    <span class="crm-field-label">Call Summary</span>
+                    <span class="crm-field-value new">Discovery call - Budget €50K confirmed</span>
+                </div>
+                <div class="crm-field">
+                    <span class="crm-field-label">Next Steps</span>
+                    <span class="crm-field-value new">Product demo for Q2 implementation</span>
+                </div>
+                <div class="crm-field">
+                    <span class="crm-field-label">Objections</span>
+                    <span class="crm-field-value new">Competitor Gong (price)</span>
+                </div>
+                <div class="crm-field">
+                    <span class="crm-field-label">MEDDIC Score</span>
+                    <span class="crm-field-value new">5/6</span>
+                </div>
+            `;
+
+            updateCoach("✅ Excellent call! All MEDDIC criteria covered except Paper Process. Recommend: Send ROI calculator and schedule CFO presentation.");
+        }
+    </script>
+</body>
+</html>
